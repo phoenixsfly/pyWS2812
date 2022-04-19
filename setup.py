@@ -11,7 +11,7 @@ setup(
     long_description=long_description,
     author='xf_zhan',
     author_email='zxf9972009@qq.com',
-    #url='',
+    url='https://github.com/phoenixsfly/pyWS2812',
     install_requires=['pyserial'],
     license='MIT License',
     packages=find_packages(),

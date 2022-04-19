@@ -20,7 +20,7 @@ class LEDColorConst:
     VIOLET = "#EE82EE"
 
 
-class Ws2812Controller:
+class WS2812Controller:
 
     def __init__(self, port, baudrate=3000000, n_led=1) -> None:
         """
@@ -173,9 +173,9 @@ class Ws2812Controller:
         return formated_colors
 
 
-class AbstractWs2812Thread(ABC):
+class AbstractWS2812Thread(ABC):
 
-    def __init__(self, controller: Ws2812Controller) -> None:
+    def __init__(self, controller: WS2812Controller) -> None:
         self.controller = controller
         self.controller.turn_off_all()
 
@@ -193,9 +193,9 @@ class AbstractWs2812Thread(ABC):
         pass
 
 
-class WS2812BlinkMode(AbstractWs2812Thread):
+class WS2812BlinkMode(AbstractWS2812Thread):
 
-    def __init__(self, controller: Ws2812Controller, period: float, duty: float = 0.5, blink_colors=None) -> None:
+    def __init__(self, controller: WS2812Controller, period: float, duty: float = 0.5, blink_colors=None) -> None:
         super().__init__(controller)
         self.period = period
         self.duty = duty
@@ -214,9 +214,9 @@ class WS2812BlinkMode(AbstractWs2812Thread):
         self.controller.turn_off_all()
 
 
-class WS2812BreathMode(AbstractWs2812Thread):
+class WS2812BreathMode(AbstractWS2812Thread):
 
-    def __init__(self, controller: Ws2812Controller, period: float, blink_colors=None) -> None:
+    def __init__(self, controller: WS2812Controller, period: float, blink_colors=None) -> None:
         super().__init__(controller)
         self.period = period
         if blink_colors != None:
@@ -235,9 +235,9 @@ class WS2812BreathMode(AbstractWs2812Thread):
         self.controller.turn_off_all()
 
 
-class WS2812StreamMode(AbstractWs2812Thread):
+class WS2812StreamMode(AbstractWS2812Thread):
 
-    def __init__(self, controller: Ws2812Controller, interval_time: float, gap: int = 1, color_que=None) -> None:
+    def __init__(self, controller: WS2812Controller, interval_time: float, gap: int = 1, color_que=None) -> None:
         super().__init__(controller)
         self.interval_time = interval_time
         self.gap = gap
@@ -265,9 +265,9 @@ class WS2812StreamMode(AbstractWs2812Thread):
             self._color_que.appendleft(c)
 
 
-class WS2812LoopMode(AbstractWs2812Thread):
+class WS2812LoopMode(AbstractWS2812Thread):
 
-    def __init__(self, controller: Ws2812Controller, interval_time: float, gap: int = 1, color_que=None) -> None:
+    def __init__(self, controller: WS2812Controller, interval_time: float, gap: int = 1, color_que=None) -> None:
         super().__init__(controller)
         self.interval_time = interval_time
         self.gap = gap
@@ -293,7 +293,7 @@ class WS2812LoopMode(AbstractWs2812Thread):
 
 
 if __name__=="__main__":
-    wsc = Ws2812Controller("COM4", n_led=10)
+    wsc = WS2812Controller("COM4", n_led=10)
 
     loopctrl = WS2812LoopMode(
         wsc,
