@@ -6,7 +6,7 @@ with open("README.md", "r",encoding="utf-8") as f:
 
 setup(
     name='pyws2812',  # 包名
-    version='0.1.0',  # 版本号
+    version='0.1.1',  # 版本号
     description='A small example package',
     long_description=long_description,
     author='xf_zhan',

@@ -178,18 +178,19 @@ class AbstractWS2812Thread(ABC):
     def __init__(self, controller: WS2812Controller) -> None:
         self.controller = controller
         self.controller.turn_off_all()
+        self.thid = 0
 
     def start(self):
-        self.ctrl_thread = threading.Thread(target=self.loop_event, daemon=True)
-        self.stop_signal = False
+        self.thid += 1
+        self.ctrl_thread = threading.Thread(target=self.loop_event, daemon=True, args=(self.thid))
         self.ctrl_thread.start()
 
     def stop(self):
-        self.stop_signal = True
+        self.thid = 0
         self.ctrl_thread = None
 
     @abstractclassmethod
-    def loop_event(self):
+    def loop_event(self, thid):
         pass
 
 
@@ -204,8 +205,8 @@ class WS2812BlinkMode(AbstractWS2812Thread):
         else:
             self.blink_colors = controller.color_status
 
-    def loop_event(self):
-        while not self.stop_signal:
+    def loop_event(self, thid):
+        while thid == self.thid:
             self.controller.set_colors(self.blink_colors)
             time.sleep(self.period * self.duty)
             self.controller.turn_off_all()
@@ -224,9 +225,9 @@ class WS2812BreathMode(AbstractWS2812Thread):
         else:
             self.blink_colors = controller.colors_formatting(controller.color_status, mode="tuple")
 
-    def loop_event(self):
+    def loop_event(self, thid):
         N = 50
-        while not self.stop_signal:
+        while thid != self.thid:
             for i in range(N):
                 k = math.sin(i * math.pi / N)
                 colors = [(int(k * c[0]), int(k * c[1]), int(k * c[2])) for c in self.blink_colors]
@@ -248,8 +249,8 @@ class WS2812StreamMode(AbstractWS2812Thread):
 
         self.__color_lst = [LEDColorConst.BLACK] * self.controller.n_led
 
-    def loop_event(self):
-        while not self.stop_signal:
+    def loop_event(self, thid):
+        while thid != self.thid:
             for k in range(self.gap):
                 if len(self._color_que) > 0:
                     self.__color_lst.insert(0, self._color_que.popleft())
@@ -278,8 +279,8 @@ class WS2812LoopMode(AbstractWS2812Thread):
 
         self.__color_lst = [LEDColorConst.BLACK] * self.controller.n_led
 
-    def loop_event(self):
-        while not self.stop_signal:
+    def loop_event(self, thid):
+        while thid != self.thid:
             for k in range(self.gap):
                 if len(self._color_que) > 0:
                     self.__color_lst.insert(0, self._color_que.popleft())
@@ -292,14 +293,16 @@ class WS2812LoopMode(AbstractWS2812Thread):
         self.controller.turn_off_all()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     wsc = WS2812Controller("COM4", n_led=10)
 
-    loopctrl = WS2812LoopMode(
-        wsc,
-        0.5,
-        2,
-        color_que=[LEDColorConst.BLUE, LEDColorConst.RED, LEDColorConst.YELLOW, LEDColorConst.VIOLET, LEDColorConst.ORANGE])
+    loopctrl = WS2812LoopMode(wsc,
+                              0.5,
+                              2,
+                              color_que=[
+                                  LEDColorConst.BLUE, LEDColorConst.RED, LEDColorConst.YELLOW, LEDColorConst.VIOLET,
+                                  LEDColorConst.ORANGE
+                              ])
     loopctrl.start()
     time.sleep(10)
     loopctrl.stop()
