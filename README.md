@@ -11,3 +11,6 @@ After the serial port TX pin output is connected to the data port of the WS2812 
 硬件上需要一个支持2.5M波特率以上的USB转串口模块（例如<u>CH34x</u>, <u>FT232RL</u> 等）以及一个非门（最好是施密特触发器）
 
 将串口TX引脚输出经过反相器后再连接到WS2812灯带的数据口后即可用本模块控制灯带了
+
+## 使用教程 Usage
+`pip install pyws2812`
