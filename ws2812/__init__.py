@@ -57,13 +57,15 @@ class WS2812Controller:
         """Close and release resource
         """
         self.turn_off_all()
-        self.ser.close()
+        if not self.ser.closed:
+            self.ser.close()
 
     def refresh(self):
         """refresh LED colors by color_status
         """
         uartmsg = self.colors_to_uartmsg(self.__color_status)
-        self.ser.write(uartmsg)
+        if not self.ser.closed:
+            self.ser.write(uartmsg)
 
     def color_to_uartbytes(self, color_data):
         dic = {'1': '110', '0': '100'}
@@ -182,7 +184,7 @@ class AbstractWS2812Thread(ABC):
 
     def start(self):
         self.thid += 1
-        self.ctrl_thread = threading.Thread(target=self.loop_event, daemon=True, args=(self.thid))
+        self.ctrl_thread = threading.Thread(target=self.loop_event, daemon=True, args=(self.thid, ))
         self.ctrl_thread.start()
 
     def stop(self):
@@ -212,7 +214,6 @@ class WS2812BlinkMode(AbstractWS2812Thread):
             self.controller.turn_off_all()
             time.sleep(self.period * (1 - self.duty))
 
-        self.controller.turn_off_all()
 
 
 class WS2812BreathMode(AbstractWS2812Thread):
@@ -227,13 +228,14 @@ class WS2812BreathMode(AbstractWS2812Thread):
 
     def loop_event(self, thid):
         N = 50
-        while thid != self.thid:
+        while thid == self.thid:
             for i in range(N):
                 k = math.sin(i * math.pi / N)
                 colors = [(int(k * c[0]), int(k * c[1]), int(k * c[2])) for c in self.blink_colors]
                 self.controller.set_colors(colors)
                 time.sleep(self.period / N)
-        self.controller.turn_off_all()
+        
+        
 
 
 class WS2812StreamMode(AbstractWS2812Thread):
@@ -250,7 +252,7 @@ class WS2812StreamMode(AbstractWS2812Thread):
         self.__color_lst = [LEDColorConst.BLACK] * self.controller.n_led
 
     def loop_event(self, thid):
-        while thid != self.thid:
+        while thid == self.thid:
             for k in range(self.gap):
                 if len(self._color_que) > 0:
                     self.__color_lst.insert(0, self._color_que.popleft())
@@ -259,7 +261,6 @@ class WS2812StreamMode(AbstractWS2812Thread):
                 self.__color_lst.pop()
             self.controller.set_colors(self.__color_lst)
             time.sleep(self.interval_time)
-        self.controller.turn_off_all()
 
     def push_colors(self, color_arr):
         for c in color_arr:
@@ -280,7 +281,7 @@ class WS2812LoopMode(AbstractWS2812Thread):
         self.__color_lst = [LEDColorConst.BLACK] * self.controller.n_led
 
     def loop_event(self, thid):
-        while thid != self.thid:
+        while thid == self.thid:
             for k in range(self.gap):
                 if len(self._color_que) > 0:
                     self.__color_lst.insert(0, self._color_que.popleft())
@@ -290,12 +291,12 @@ class WS2812LoopMode(AbstractWS2812Thread):
                 self._color_que.append(c)
             self.controller.set_colors(self.__color_lst)
             time.sleep(self.interval_time)
-        self.controller.turn_off_all()
 
 
 if __name__ == "__main__":
-    wsc = WS2812Controller("COM4", n_led=10)
-
+    wsc = WS2812Controller("COM3", n_led=6)
+    wsc.turn_on_all()
+    time.sleep(5)
     loopctrl = WS2812LoopMode(wsc,
                               0.5,
                               2,
@@ -306,4 +307,5 @@ if __name__ == "__main__":
     loopctrl.start()
     time.sleep(10)
     loopctrl.stop()
+    time.sleep(5)
     wsc.close()
