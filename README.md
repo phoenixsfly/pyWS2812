@@ -13,4 +13,16 @@ After the serial port TX pin output is connected to the data port of the WS2812 
 将串口TX引脚输出经过反相器后再连接到WS2812灯带的数据口后即可用本模块控制灯带了
 
 ## 使用教程 Usage
-`pip install pyws2812`
+安装 installing： `pip install pyws2812`
+
+```python3
+from ws2812 import *
+
+wsc = WS2812Controller("<PORT>", n_led=5)
+wsc.turn_on_all()
+```
+不出意外的话，全部灯珠被点亮为白色
+Then  all the LEDs will be on.
+
+更多详细的用法请参考源代码注释和示例
+for more detail usage, please refer to the source code.
