@@ -264,7 +264,7 @@ class WS2812StreamMode(AbstractWS2812Thread):
 
     def push_colors(self, color_arr):
         for c in color_arr:
-            self._color_que.appendleft(c)
+            self._color_que.append(c)
 
 
 class WS2812LoopMode(AbstractWS2812Thread):
