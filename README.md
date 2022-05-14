@@ -2,7 +2,7 @@
 
 Control WS2812 LED by UART Serial Port Protocol + non-gate transistor
 
-The hardware requires a USB serial port module (for example, CH34X, FT232RL) and a non-gate (preferably a Schmitt trigger) that supports a baud rate of more than 2.5 MHz
+The hardware requires a USB serial port module that supports a baud rate of more than 2.5 MHz (for example, CH34X, FT232RL) and a non-gate (preferably a Schmitt trigger) 
 
 After the serial port TX pin output is connected to the data port of the WS2812 LED  through the inverter, the LED can be controlled by this module
 
